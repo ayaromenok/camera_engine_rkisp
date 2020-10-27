@@ -11,6 +11,7 @@ SYSTEM_C_INCLUDES += /usr/include/drm
 SYSTEM_C_INCLUDES += /usr/include/gstreamer-1.0
 SYSTEM_C_INCLUDES += /usr/include/glib-2.0
 SYSTEM_C_INCLUDES += /usr/include/glib-2.0/include
+SYSTEM_C_INCLUDES += /usr/lib/aarch64-linux-gnu/glib-2.0/include
 
 SYSTEM_C_INCLUDES += $(BUILD_OUTPUT_RKISP_INC)
 SYSTEM_C_INCLUDES += $(BUILD_OUTPUT_GLIB_INC)
