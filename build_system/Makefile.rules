@@ -9,12 +9,12 @@ export BUILD_OUTPUT_BIN:=$(BUILD_DIR)/bin/
 
 export BUILD_OUTPUT_EXTERNAL_LIBS:=$(BUILD_DIR)/ext/rkisp/usr/lib
 export BUILD_OUTPUT_RKISP_LIBS:=$(BUILD_DIR)/ext/rkisp/lib
-export BUILD_OUTPUT_GLIB_LIBS:=$(BUILD_DIR)/ext/rkisp/usr/lib/glib-2.0
-export BUILD_OUTPUT_GSTREAMER_LIBS:=$(BUILD_DIR)/ext/rkisp/usr/lib/gstreamer-1.0
+export BUILD_OUTPUT_GLIB_LIBS:=/usr/lib/glib-2.0
+export BUILD_OUTPUT_GSTREAMER_LIBS:=/usr/lib/aarch64-linux-gnu/gstreamer-1.0
 
-export BUILD_OUTPUT_RKISP_INC:=$(BUILD_DIR)/ext/rkisp/usr/include
-export BUILD_OUTPUT_GLIB_INC:=$(BUILD_DIR)/ext/rkisp/usr/include/glib-2.0
-export BUILD_OUTPUT_GSTREAMER_INC:=$(BUILD_DIR)/ext/rkisp/usr/include/gstreamer-1.0
+export BUILD_OUTPUT_RKISP_INC:=/usr/include
+export BUILD_OUTPUT_GLIB_INC:=/usr/include/glib-2.0
+export BUILD_OUTPUT_GSTREAMER_INC:=/usr/include/gstreamer-1.0
 
 export STATIC_LIB_SUFFIX:=.a
 export SHARED_LIB_SUFFIX:=.so

@@ -35,13 +35,15 @@ endif
 
 ifeq ($(ARCH),arm)
 define SET_EVERYTHING
-	@cp -rf $(CURDIR)/ext/rkisp/usr/lib32/* $(BUILD_OUTPUT_EXTERNAL_LIBS)/
-	@cp -rf $(CURDIR)/ext/rkisp/usr/include/glib-2.0-32/* $(BUILD_OUTPUT_GLIB_INC)/
+#	@cp -rf $(CURDIR)/ext/rkisp/usr/lib32/* $(BUILD_OUTPUT_EXTERNAL_LIBS)/
+#	@cp -rf $(CURDIR)/ext/rkisp/usr/include/glib-2.0-32/* $(BUILD_OUTPUT_GLIB_INC)/
 endef
 else
 define SET_EVERYTHING
-	@cp -rf $(CURDIR)/ext/rkisp/usr/lib64/* $(BUILD_OUTPUT_EXTERNAL_LIBS)/
-	@cp -rf $(CURDIR)/ext/rkisp/usr/include/glib-2.0-64/* $(BUILD_OUTPUT_GLIB_INC)/
+echo "\t>>>>\t copy to:"
+echo $(BUILD_OUTPUT_EXTERNAL_LIBS)
+#	@cp -rf $(CURDIR)/ext/rkisp/usr/lib64/* $(BUILD_OUTPUT_EXTERNAL_LIBS)/
+#	@cp -rf $(CURDIR)/ext/rkisp/usr/include/glib-2.0-64/* $(BUILD_OUTPUT_GLIB_INC)/
 endef
 endif
 

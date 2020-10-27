@@ -4,11 +4,11 @@ SYSTEM_C_INCLUDES += $(ROOT_DIR)/xcore
 SYSTEM_C_INCLUDES += $(ROOT_DIR)/modules
 SYSTEM_C_INCLUDES += $(ROOT_DIR)/modules/rkisp
 SYSTEM_C_INCLUDES += $(ROOT_DIR)/ext/rkisp
-SYSTEM_C_INCLUDES += $(ROOT_DIR)/ext/rkisp/usr/include
-SYSTEM_C_INCLUDES += $(ROOT_DIR)/ext/rkisp/usr/include/drm
-SYSTEM_C_INCLUDES += $(ROOT_DIR)/ext/rkisp/usr/include/gstreamer-1.0
-SYSTEM_C_INCLUDES += $(ROOT_DIR)/ext/rkisp/usr/include/glib-2.0
-SYSTEM_C_INCLUDES += $(ROOT_DIR)/ext/rkisp/usr/include/glib-2.0/include
+SYSTEM_C_INCLUDES += /usr/include
+SYSTEM_C_INCLUDES += /usr/include/drm
+SYSTEM_C_INCLUDES += /usr/include/gstreamer-1.0
+SYSTEM_C_INCLUDES += /usr/include/glib-2.0
+SYSTEM_C_INCLUDES += /usr/include/glib-2.0/include
 
 SYSTEM_C_INCLUDES += $(BUILD_OUTPUT_RKISP_INC)
 SYSTEM_C_INCLUDES += $(BUILD_OUTPUT_GLIB_INC)
