@@ -100,6 +100,8 @@ static float mae_expo = 0.0f;
 FILE *fp;
 static int silent;
 static unsigned int drm_handle;
+static int expo_test = 0;
+static float expo_test_step = 0.005;
 
 #define DBG(...) do { if(!silent) printf(__VA_ARGS__); } while(0)
 #define ERR(...) do { fprintf(stderr, __VA_ARGS__); } while (0)
@@ -666,6 +668,7 @@ static void mainloop(void)
         unsigned int count = frame_count;
         float exptime, expgain;
         int64_t frame_id, frame_sof;
+	fprintf(stderr, "start: expo %f, gain %f, step %f\n", mae_expo, mae_gain, expo_test_step);
 
         if (mae_gain > 0 && mae_expo > 0)
             rkisp_setManualGainAndTime((void*&)g_3A_control_params, mae_gain, mae_expo);
@@ -673,7 +676,13 @@ static void mainloop(void)
             rkisp_setAeMode((void*&)g_3A_control_params, HAL_AE_OPERATION_MODE_AUTO);
 
         while (count-- > 0) {
-            DBG("No.%d\n",frame_count - count);        //显示当前帧数目
+            DBG("No.%d\n",frame_count - count);
+            if(expo_test>0){
+                rkisp_setManualGainAndTime((void*&)g_3A_control_params, mae_gain, mae_expo);
+                fprintf(stderr, "expo %f, gain %f, step %f\n", mae_expo, mae_gain, expo_test_step);
+                mae_expo += expo_test_step;
+            } else {
+            }//end if
             // examples show how to use 3A interfaces
             rkisp_getAeTime((void*&)g_3A_control_params, exptime);
             rkisp_getAeGain((void*&)g_3A_control_params, expgain);
@@ -1159,10 +1168,11 @@ void parse_args(int argc, char **argv)
            {"gain",     required_argument, 0, 'g' },
            {"help",     no_argument,       0, 'p' },
            {"silent",   no_argument,       0, 's' },
+           {"expo_test",required_argument, 0, 't' },
            {0,          0,                 0,  0  }
        };
 
-       c = getopt_long(argc, argv, "w:h:m:f:i:d:o:c:e:g:ps",
+       c = getopt_long(argc, argv, "w:h:m:f:i:d:o:c:e:g:ps:t",
            long_options, &option_index);
        if (c == -1)
            break;
@@ -1208,6 +1218,11 @@ void parse_args(int argc, char **argv)
        case 's':
            silent = 1;
            break;
+       case 't':
+           expo_test_step = atof(optarg);
+           expo_test = 1;
+           break;
+
        case '?':
        case 'p':
            ERR("Usage: %s to capture rkisp1 frames\n"
@@ -1222,7 +1237,8 @@ void parse_args(int argc, char **argv)
                   "         --gain,   default 0,               optional\n"
                   "         --expo,   default 0,               optional\n"
                   "                   Manually AE is enable only if --gain and --expo are not zero\n"
-                  "         --silent,                          optional, subpress debug log\n",
+                  "         --silent,                          optional, subpress debug log\n"
+                  "         --expo_test,                       optional, change exposure for buffers\n",
                   argv[0]);
            exit(-1);
 
