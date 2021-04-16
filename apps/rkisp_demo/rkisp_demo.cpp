@@ -102,6 +102,8 @@ static int silent;
 static unsigned int drm_handle;
 static int expo_test = 0;
 static float expo_test_step = 0.005;
+static int delay_mks = 0;
+static int skip_frames = 0;
 
 #define DBG(...) do { if(!silent) printf(__VA_ARGS__); } while(0)
 #define ERR(...) do { fprintf(stderr, __VA_ARGS__); } while (0)
@@ -243,7 +245,7 @@ static int rkisp_getAeTime(void* &engine, float &time)
         return -1;
 
     time = entry.data.i64[0] / (1000.0 * 1000.0 * 1000.0);
-    DBG("expousre time is %f secs\n", time);
+    DBG("exposure time is %f secs\n", time);
 
     return 0;
 }
@@ -261,7 +263,7 @@ static int rkisp_getAeMaxExposureTime(void* &engine, float &time)
         return -1;
 
     time = entry.data.i64[1] / (1000.0 * 1000.0 * 1000.0);
-    DBG("expousre max time is %f secs\n", time);
+    DBG("exposure max time is %f secs\n", time);
 
     return 0;
 }
@@ -279,7 +281,7 @@ static int rkisp_getAeGain(void* &engine, float &gain)
         return -1;
 
     gain = (float)entry.data.i32[0] / 100;
-    DBG("expousre gain is %f\n", gain);
+    DBG("exposure gain is %f\n", gain);
 
     return 0;
 }
@@ -297,7 +299,7 @@ static int rkisp_getAeMaxExposureGain(void* &engine, float &gain)
         return -1;
 
     gain = entry.data.i32[1] / 100;
-    DBG("expousre max gain is %f \n", gain);
+    DBG("exposure max gain is %f \n", gain);
 
     return 0;
 }
@@ -624,7 +626,7 @@ static void process_image(const void *p, int size)
     fflush(fp);
 }
 
-static int read_frame(FILE *fp)
+static int read_frame(FILE *fp, int frame)
 {
         struct v4l2_buffer buf;
         int i, bytesused;
@@ -654,7 +656,9 @@ static int read_frame(FILE *fp)
             bytesused = buf.m.planes[0].bytesused;
         else
             bytesused = buf.bytesused;
-        process_image(buffers[i].start, bytesused);
+        if (frame >= skip_frames){
+            process_image(buffers[i].start, bytesused);
+        }
         DBG("bytesused %d\n", bytesused);
 
         if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
@@ -668,12 +672,14 @@ static void mainloop(void)
         unsigned int count = frame_count;
         float exptime, expgain;
         int64_t frame_id, frame_sof;
-	fprintf(stderr, "start: expo %f, gain %f, step %f\n", mae_expo, mae_gain, expo_test_step);
+        int cur_frame=0;
+        fprintf(stderr, "start: expo %f, gain %f, step %f\n", mae_expo, mae_gain, expo_test_step);
 
         if (mae_gain > 0 && mae_expo > 0)
             rkisp_setManualGainAndTime((void*&)g_3A_control_params, mae_gain, mae_expo);
         else
             rkisp_setAeMode((void*&)g_3A_control_params, HAL_AE_OPERATION_MODE_AUTO);
+
 
         while (count-- > 0) {
             DBG("No.%d\n",frame_count - count);
@@ -690,7 +696,9 @@ static void mainloop(void)
             rkisp_getAeMaxExposureTime((void*&)g_3A_control_params, exptime);
             rkisp_get_meta_frame_id((void*&)g_3A_control_params, frame_id);
             rkisp_get_meta_frame_sof_ts((void*&)g_3A_control_params, frame_sof);
-            read_frame(fp);
+            read_frame(fp,cur_frame);
+            cur_frame++;
+            usleep(delay_mks);
         }
         DBG("\nREAD AND SAVE DONE!\n");
 }
@@ -1169,6 +1177,8 @@ void parse_args(int argc, char **argv)
            {"help",     no_argument,       0, 'p' },
            {"silent",   no_argument,       0, 's' },
            {"expo_test",required_argument, 0, 't' },
+           {"delay",    required_argument, 0, 'l' },
+           {"skip_frames", required_argument, 0, 'k' },
            {0,          0,                 0,  0  }
        };
 
@@ -1222,6 +1232,12 @@ void parse_args(int argc, char **argv)
            expo_test_step = atof(optarg);
            expo_test = 1;
            break;
+       case 'l':
+           delay_mks = atoi(optarg);
+           break;
+       case 'k':
+           skip_frames = atoi(optarg);
+           break;
 
        case '?':
        case 'p':
@@ -1238,7 +1254,9 @@ void parse_args(int argc, char **argv)
                   "         --expo,   default 0,               optional\n"
                   "                   Manually AE is enable only if --gain and --expo are not zero\n"
                   "         --silent,                          optional, subpress debug log\n"
-                  "         --expo_test,                       optional, change exposure for buffers\n",
+                  "         --expo_test,                       optional, change exposure for buffers\n"
+                  "         --delay,                           optional, delay in microseconds  between shots\n"
+                  "         --skip_frames,                     optional, skip frames from beging of sequence\n",
                   argv[0]);
            exit(-1);
 
