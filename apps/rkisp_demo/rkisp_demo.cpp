@@ -102,6 +102,7 @@ static int silent;
 static unsigned int drm_handle;
 static int expo_test = 0;
 static float expo_test_step = 0.005;
+static int delay_mks = 0;
 
 #define DBG(...) do { if(!silent) printf(__VA_ARGS__); } while(0)
 #define ERR(...) do { fprintf(stderr, __VA_ARGS__); } while (0)
@@ -243,7 +244,7 @@ static int rkisp_getAeTime(void* &engine, float &time)
         return -1;
 
     time = entry.data.i64[0] / (1000.0 * 1000.0 * 1000.0);
-    DBG("expousre time is %f secs\n", time);
+    DBG("exposure time is %f secs\n", time);
 
     return 0;
 }
@@ -261,7 +262,7 @@ static int rkisp_getAeMaxExposureTime(void* &engine, float &time)
         return -1;
 
     time = entry.data.i64[1] / (1000.0 * 1000.0 * 1000.0);
-    DBG("expousre max time is %f secs\n", time);
+    DBG("exposure max time is %f secs\n", time);
 
     return 0;
 }
@@ -279,7 +280,7 @@ static int rkisp_getAeGain(void* &engine, float &gain)
         return -1;
 
     gain = (float)entry.data.i32[0] / 100;
-    DBG("expousre gain is %f\n", gain);
+    DBG("exposure gain is %f\n", gain);
 
     return 0;
 }
@@ -297,7 +298,7 @@ static int rkisp_getAeMaxExposureGain(void* &engine, float &gain)
         return -1;
 
     gain = entry.data.i32[1] / 100;
-    DBG("expousre max gain is %f \n", gain);
+    DBG("exposure max gain is %f \n", gain);
 
     return 0;
 }
@@ -691,6 +692,7 @@ static void mainloop(void)
             rkisp_get_meta_frame_id((void*&)g_3A_control_params, frame_id);
             rkisp_get_meta_frame_sof_ts((void*&)g_3A_control_params, frame_sof);
             read_frame(fp);
+            usleep(delay_mks);
         }
         DBG("\nREAD AND SAVE DONE!\n");
 }
@@ -1169,6 +1171,7 @@ void parse_args(int argc, char **argv)
            {"help",     no_argument,       0, 'p' },
            {"silent",   no_argument,       0, 's' },
            {"expo_test",required_argument, 0, 't' },
+           {"delay"    ,required_argument, 0, 'l' },
            {0,          0,                 0,  0  }
        };
 
@@ -1222,6 +1225,9 @@ void parse_args(int argc, char **argv)
            expo_test_step = atof(optarg);
            expo_test = 1;
            break;
+       case 'l':
+           delay_mks = atoi(optarg);
+           break;
 
        case '?':
        case 'p':
@@ -1238,7 +1244,8 @@ void parse_args(int argc, char **argv)
                   "         --expo,   default 0,               optional\n"
                   "                   Manually AE is enable only if --gain and --expo are not zero\n"
                   "         --silent,                          optional, subpress debug log\n"
-                  "         --expo_test,                       optional, change exposure for buffers\n",
+                  "         --expo_test,                       optional, change exposure for buffers\n"
+                  "         --delay,                           optional, delay in microseconds  between shots\n",
                   argv[0]);
            exit(-1);
 
