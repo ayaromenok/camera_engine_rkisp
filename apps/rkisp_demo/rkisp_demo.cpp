@@ -103,10 +103,7 @@ static unsigned int drm_handle;
 static int expo_test = 0;
 static float expo_test_step = 0.005;
 static int delay_mks = 0;
-<<<<<<< HEAD
 static int skip_frames = 0;
-=======
->>>>>>> 1ef2585cde52ef34f0590e31f1f07b61c71d9c9f
 
 #define DBG(...) do { if(!silent) printf(__VA_ARGS__); } while(0)
 #define ERR(...) do { fprintf(stderr, __VA_ARGS__); } while (0)
